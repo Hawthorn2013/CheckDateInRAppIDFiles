@@ -1,0 +1,77 @@
+#!/bin/sh
+#
+# An example hook script to verify what is about to be committed.
+# Called by "git commit" with no arguments.  The hook should
+# exit with non-zero status after issuing an appropriate message if
+# it wants to stop the commit.
+#
+# To enable this hook, rename this file to "pre-commit".
+
+echo 'pre-commit exit with 1 test.'
+RAPPID_DIR=RAppIDSrc
+function check_rappid_file()
+{
+    local status="0"
+    echo file=$1
+    exec 3<`echo $RAPPID_DIR\\\\${1}`
+#    cat `echo $RAPPID_DIR\\\\${1}` | while read line
+    while read line <&3
+    do
+        if [ "$status" = "0" ]
+        then
+            #echo ${line}
+            if [[ "$line" = /\** ]]
+            then
+                status=1
+            else
+                :
+            fi
+        elif [ "$status" = "1" ]
+        then
+            if [[ "$line" = \*/* ]]
+            then
+                status=2
+                break
+            else
+                if [[ ${line/Project Last Save Date/} != "$line" || ${line/Created on Date/} != "$line" ]]
+                then
+                    echo "$line"
+                    status=3
+                    break
+                fi
+            fi
+        fi
+    done
+    exec 3>&-
+    echo status=$status
+    if [ "$status" = "3" ]
+    then
+        return 1
+    else
+        return 0
+    fi
+}
+
+function check_rappid_files()
+{
+    for arg in $@
+    do
+        check_rappid_file $arg
+        res1=$?
+        if [ "$res1" != "0" ]
+        then
+            return 1
+        fi
+    done
+    return 0
+}
+rappid_file_list=`ls $RAPPID_DIR`
+echo "Checking RAppID Files..."
+check_rappid_files $rappid_file_list
+res=$?
+if [ "$res" = "0" ]
+then
+    exit 0
+else
+    exit 1
+fi
