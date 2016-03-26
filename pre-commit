@@ -7,7 +7,6 @@
 #
 # To enable this hook, rename this file to "pre-commit".
 
-echo "Checking data in RAppID files..."
 RAPPID_DIR="test1\\RAppIDSrc"
 if [ -d ${RAPPID_DIR} ]; then
     echo "Found RAppID files in ${RAPPID_DIR}"
@@ -41,7 +40,6 @@ function check_rappid_file()
                 then
                     echo "Found data in \"${RAPPID_DIR}\\${1}\", at line ${line_index}:"
                     echo "${line}"
-                    echo "Please remove the data and retry!"
                     status=3
                     break
                 fi
@@ -72,12 +70,15 @@ function check_rappid_files()
     return 0
 }
 rappid_file_list=`ls $RAPPID_DIR`
-echo "Checking RAppID Files..."
+echo "Checking data in RAppID files:"
+echo ${rappid_file_list}
 check_rappid_files $rappid_file_list
 res=$?
 if [ "$res" = "0" ]
 then
+    echo "Congratulations! Check completed, all files do not contain data."
     exit 0
 else
+    echo "Please remove the data and retry!"
     exit 1
 fi
