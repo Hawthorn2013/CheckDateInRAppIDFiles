@@ -8,7 +8,7 @@
 # To enable this hook, rename this file to "pre-commit".
 
 echo "Checking data in RAppID files..."
-RAPPID_DIR=RAppIDSrc
+RAPPID_DIR="test1\\RAppIDSrc"
 if [ -d ${RAPPID_DIR} ]; then
     echo "Found RAppID files in ${RAPPID_DIR}"
 else
@@ -18,14 +18,11 @@ fi
 function check_rappid_file()
 {
     local status="0"
-    echo file=$1
-    exec 3<`echo $RAPPID_DIR\\\\${1}`
-#    cat `echo $RAPPID_DIR\\\\${1}` | while read line
+    exec 3<`echo ${RAPPID_DIR}\\\\${1}`
     while read line <&3
     do
         if [ "$status" = "0" ]
         then
-            #echo ${line}
             if [[ "$line" = /\** ]]
             then
                 status=1
@@ -41,7 +38,9 @@ function check_rappid_file()
             else
                 if [[ ${line/Project Last Save Date/} != "$line" || ${line/Created on Date/} != "$line" ]]
                 then
+                    echo "Found data in \"${RAPPID_DIR}\\${1}\"."
                     echo "$line"
+                    echo "Please remote the data and retry!"
                     status=3
                     break
                 fi
@@ -49,7 +48,6 @@ function check_rappid_file()
         fi
     done
     exec 3>&-
-    echo status=$status
     if [ "$status" = "3" ]
     then
         return 1
