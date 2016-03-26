@@ -18,6 +18,7 @@ fi
 function check_rappid_file()
 {
     local status="0"
+    local line_index="1"
     exec 3<`echo ${RAPPID_DIR}\\\\${1}`
     while read line <&3
     do
@@ -38,14 +39,15 @@ function check_rappid_file()
             else
                 if [[ ${line/Project Last Save Date/} != "$line" || ${line/Created on Date/} != "$line" ]]
                 then
-                    echo "Found data in \"${RAPPID_DIR}\\${1}\"."
-                    echo "$line"
+                    echo "Found data in \"${RAPPID_DIR}\\${1}\", at line ${line_index}:"
+                    echo "${line}"
                     echo "Please remote the data and retry!"
                     status=3
                     break
                 fi
             fi
         fi
+        ((line_index++))
     done
     exec 3>&-
     if [ "$status" = "3" ]
