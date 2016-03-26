@@ -7,8 +7,14 @@
 #
 # To enable this hook, rename this file to "pre-commit".
 
-echo 'pre-commit exit with 1 test.'
+echo "Checking data in RAppID files..."
 RAPPID_DIR=RAppIDSrc
+if [ -d ${RAPPID_DIR} ]; then
+    echo "Found RAppID files in ${RAPPID_DIR}"
+else
+    echo "Not found RAppID directory ${RAPPID_DIR}"
+    exit 0
+fi
 function check_rappid_file()
 {
     local status="0"
