@@ -41,7 +41,7 @@ function check_rappid_file()
                 then
                     echo "Found data in \"${RAPPID_DIR}\\${1}\", at line ${line_index}:"
                     echo "${line}"
-                    echo "Please remote the data and retry!"
+                    echo "Please remove the data and retry!"
                     status=3
                     break
                 fi
